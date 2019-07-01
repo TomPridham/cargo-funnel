@@ -7,7 +7,7 @@ mod util;
 use app::build_app;
 use cargo_metadata::MetadataCommand;
 use std::fs::read_to_string;
-use util::sort_package_fields;
+use util::{sort_badges_fields, sort_package_fields};
 
 fn main() {
     let app = build_app();
@@ -22,6 +22,6 @@ fn main() {
 
     let manifest_raw = read_to_string(&manifest_path).unwrap();
     let mut manifest = manifest_raw.parse::<toml_edit::Document>().expect("heck");
-    let j = sort_package_fields(manifest["package"].as_table_mut().unwrap());
-    println!("{:?}", j);
+    manifest["package"] = sort_package_fields(manifest["package"].as_table_mut().unwrap());
+    manifest["badges"] = sort_badges_fields(manifest["badges"].as_table_mut().unwrap());
 }
