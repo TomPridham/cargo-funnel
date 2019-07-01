@@ -1,8 +1,10 @@
 [package]
 name = "cargo-funnel"
 authors = ["Tom Pridham <pridham.tom@gmail.com>"]
+description = "cargo subcommand to reorganize and sort your Cargo.toml"
 version = "0.1.0"
 edition = "2018"
+license = "MIT"
 
 [dependencies]
 clap = "2.33.0"
