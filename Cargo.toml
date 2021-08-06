@@ -6,7 +6,7 @@ edition = "2018"
 description = "cargo subcommand to reorganize and sort your Cargo.toml"
 repository = "https://github.com/TomPridham/cargo-funnel"
 readme = "README.md"
-keywords = ["sort", "cargo.toml", "reorganize", "formatter"]
+keywords = ["sort", "toml", "reorganize", "formatter"]
 categories = ["development-tools::cargo-plugins"]
 license = "MIT"
 
@@ -14,3 +14,4 @@ license = "MIT"
 cargo_metadata = "0.8.0"
 clap = "2.33.0"
 toml_edit = "0.1.5"
+
