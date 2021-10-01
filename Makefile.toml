@@ -44,7 +44,7 @@ args = ["insta", "review"]
 command = "cargo"
 args = ["clean"]
 
-[tasks.coverage]
+[tasks.tarpaulin]
 command = "cargo"
 toolchain = "nightly"
-args = ["tarpaulin", "--all-features", "--workspace", "--tests", "--fail-under", "42", "--out", "Html"]
+args = ["tarpaulin", "--all-features", "--workspace", "--tests", "--fail-under", "37", "--out", "Html"]
