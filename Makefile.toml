@@ -1,0 +1,50 @@
+# docs: https://github.com/sagiegurari/cargo-make
+
+[tasks.start]
+env = { RUST_LOG = "debug" }
+command = "cargo"
+args = ["watch", "-x", "run"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+
+[tasks.tests]
+run_task = { name = ["clippy", "format", "test", "coverage"] }
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy"]
+
+[tasks.format]
+command = "cargo"
+args = ["fmt", "--", "--check"]
+
+[tasks.test]
+command = "cargo"
+toolchain = 'nightly'
+args = ["test"]
+
+[tasks.watch]
+command = "cargo"
+toolchain = 'nightly'
+args = ["watch", "-x", "test -- --nocapture"]
+
+[tasks.insta]
+command = "cargo"
+toolchain = 'nightly'
+args = ["insta", "test"]
+
+[tasks.review]
+command = "cargo"
+toolchain = 'nightly'
+args = ["insta", "review"]
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+
+[tasks.coverage]
+command = "cargo"
+toolchain = "nightly"
+args = ["tarpaulin", "--all-features", "--workspace", "--tests", "--fail-under", "42", "--out", "Html"]
