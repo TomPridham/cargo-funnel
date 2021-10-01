@@ -13,25 +13,20 @@ use toml_edit::Document;
 use util::{sort_badges_fields, sort_package_fields};
 
 fn sort_fields(manifest: &mut Document) -> Result<&mut Document, Box<dyn Error>> {
-    match manifest["package"].as_table_mut() {
-        Some(x) => manifest["package"] = sort_package_fields(x),
-        None => {}
+    if let Some(x) = manifest["package"].as_table_mut() {
+        manifest["package"] = sort_package_fields(x);
     };
-    match manifest["badges"].as_table_mut() {
-        Some(x) => manifest["badges"] = sort_badges_fields(x),
-        None => {}
+    if let Some(x) = manifest["badges"].as_table_mut() {
+        manifest["badges"] = sort_badges_fields(x);
     };
-    match manifest["dependencies"].as_table_mut() {
-        Some(x) => x.sort_values(),
-        None => {}
+    if let Some(x) = manifest["dependencies"].as_table_mut() {
+        x.sort_values();
     };
-    match manifest["dev-dependencies"].as_table_mut() {
-        Some(x) => x.sort_values(),
-        None => {}
+    if let Some(x) = manifest["dev-dependencies"].as_table_mut() {
+        x.sort_values();
     };
-    match manifest["build-dependencies"].as_table_mut() {
-        Some(x) => x.sort_values(),
-        None => {}
+    if let Some(x) = manifest["build-dependencies"].as_table_mut() {
+        x.sort_values();
     };
     Ok(manifest)
 }
