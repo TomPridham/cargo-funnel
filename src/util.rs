@@ -1,57 +1,9 @@
 use toml_edit::{table, Item, Table};
 
-struct OrderedBadge {
-    name: &'static str,
-    required_field: &'static str,
-}
-
 struct OrderedField {
     name: &'static str,
     required: bool,
 }
-
-const BADGES_FIELDS_ORDER: [OrderedBadge; 10] = [
-    OrderedBadge {
-        name: "appveyor",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "circle-ci",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "gitlab",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "azure-devops",
-        required_field: "project",
-    },
-    OrderedBadge {
-        name: "travis-ci",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "codecov",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "coveralls",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "is-it-maintained-issue-resolution",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "is-it-maintained-open-issues",
-        required_field: "repository",
-    },
-    OrderedBadge {
-        name: "maintenance",
-        required_field: "status",
-    },
-];
 
 const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
     OrderedField {
@@ -131,38 +83,6 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required: false,
     },
 ];
-
-pub fn sort_badges_fields(badges: &mut Table) -> Item {
-    let sorted_badges = BADGES_FIELDS_ORDER.iter().fold(table(), |mut acc, badge| {
-        match badges.remove(badge.name) {
-            Some(val) => {
-                let v_table = val.as_inline_table().unwrap();
-                assert!(
-                    !v_table.contains_key(badge.required_field),
-                    "missing required field: '{}' for {} badge",
-                    badge.required_field,
-                    badge.name
-                );
-
-                // this is necessary to utilize the const vec for everything else. azure-devops is
-                // the only one with more than one required field
-                assert!(
-                    badge.name == "azure-devops" && !v_table.contains_key("pipeline"),
-                    "missing required field: 'pipeline' for {} badge",
-                    badge.name
-                );
-                acc[badge.name] = val;
-                acc
-            }
-            None => acc,
-        }
-    });
-    let sorted_badges = badges.iter().fold(sorted_badges, |mut acc, x| {
-        acc[x.0] = x.1.clone();
-        acc
-    });
-    sorted_badges
-}
 
 pub fn sort_package_fields(package: &mut Table) -> Item {
     let sorted_package = PACKAGE_FIELDS_ORDER
