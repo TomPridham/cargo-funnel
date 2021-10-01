@@ -10,14 +10,11 @@ use std::error::Error;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use toml_edit::Document;
-use util::{sort_badges_fields, sort_package_fields};
+use util::sort_package_fields;
 
 fn sort_fields(manifest: &mut Document) -> Result<&mut Document, Box<dyn Error>> {
     if let Some(x) = manifest["package"].as_table_mut() {
         manifest["package"] = sort_package_fields(x);
-    };
-    if let Some(x) = manifest["badges"].as_table_mut() {
-        manifest["badges"] = sort_badges_fields(x);
     };
     if let Some(x) = manifest["dependencies"].as_table_mut() {
         x.sort_values();
