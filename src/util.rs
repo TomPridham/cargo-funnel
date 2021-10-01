@@ -10,7 +10,7 @@ struct OrderedField {
     required: bool,
 }
 
-static BADGES_FIELDS_ORDER: [OrderedBadge; 10] = [
+const BADGES_FIELDS_ORDER: [OrderedBadge; 10] = [
     OrderedBadge {
         name: "appveyor",
         required_field: "repository",
@@ -53,7 +53,7 @@ static BADGES_FIELDS_ORDER: [OrderedBadge; 10] = [
     },
 ];
 
-static PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
+const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
     OrderedField {
         name: "name",
         required: true,
@@ -185,4 +185,76 @@ pub fn sort_package_fields(package: &mut Table) -> Item {
         acc
     });
     sorted_package
+}
+
+#[cfg(test)]
+mod util_test {
+    use super::*;
+    use toml_edit::Document;
+
+    mod sort_package_fields_test {
+        use super::*;
+
+        #[test]
+        fn orders_all_fields_correctly() {
+            let fields = r#"
+            [package]
+            workspace = "i don't like you"
+            publish = false
+            include = "out of control"
+            exclude = "i don't like youuuuuuu"
+            links = ["i don't the things you say"]
+            build = "say it right to my face"
+            authors = ["out of control", "don't wanna see me lose my mind"]
+            license-file = "things u do.txt"
+            license = "MIT"
+            categories = ["can't", "get", "in", "my", "head"]
+            keywords = []
+            readme = "README.md"
+            repository = "dont like u .git"
+            homepage = "overwhelmed.com"
+            documentation = "docs.rs/but im not"
+            description = "words come over me, feels like im somebody else"
+            edition = "2018"
+            version = "1.0.0"
+            name = "overwhelmed"
+            "#;
+
+            let mut toml = fields.parse::<Document>().expect("heck");
+
+            let package_fields = toml["package"].as_table_mut().unwrap();
+            toml["package"] = sort_package_fields(package_fields);
+            insta::assert_snapshot!(format!("{}", toml.to_string()));
+        }
+
+        #[test]
+        #[should_panic]
+        fn panics_if_name_missing() {
+            std::panic::set_hook(Box::new(|_| {}));
+            let fields = r#"
+            [package]
+            version = "1.0.0"
+            "#;
+
+            let mut toml = fields.parse::<Document>().expect("heck");
+
+            let package_fields = toml["package"].as_table_mut().unwrap();
+            toml["package"] = sort_package_fields(package_fields);
+        }
+
+        #[test]
+        #[should_panic]
+        fn panics_if_version_missing() {
+            std::panic::set_hook(Box::new(|_| {}));
+            let fields = r#"
+            [package]
+            name = "back down"
+            "#;
+
+            let mut toml = fields.parse::<Document>().expect("heck");
+
+            let package_fields = toml["package"].as_table_mut().unwrap();
+            toml["package"] = sort_package_fields(package_fields);
+        }
+    }
 }
