@@ -135,23 +135,22 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
 pub fn sort_badges_fields(badges: &mut Table) -> Item {
     let sorted_badges = BADGES_FIELDS_ORDER.iter().fold(table(), |mut acc, badge| {
         match badges.remove(badge.name) {
-            Some(x) => {
-                let val = x.clone();
+            Some(val) => {
                 let v_table = val.as_inline_table().unwrap();
-                if !v_table.contains_key(badge.required_field) {
-                    panic!(
-                        "missing required field: '{}' for {} badge",
-                        badge.required_field, badge.name
-                    );
-                }
+                assert!(
+                    !v_table.contains_key(badge.required_field),
+                    "missing required field: '{}' for {} badge",
+                    badge.required_field,
+                    badge.name
+                );
+
                 // this is necessary to utilize the const vec for everything else. azure-devops is
                 // the only one with more than one required field
-                if badge.name == "azure-devops" && !v_table.contains_key("pipeline") {
-                    panic!(
-                        "missing required field: 'pipeline' for {} badge",
-                        badge.name
-                    );
-                }
+                assert!(
+                    badge.name == "azure-devops" && !v_table.contains_key("pipeline"),
+                    "missing required field: 'pipeline' for {} badge",
+                    badge.name
+                );
                 acc[badge.name] = val;
                 acc
             }
@@ -170,13 +169,11 @@ pub fn sort_package_fields(package: &mut Table) -> Item {
         .iter()
         .fold(table(), |mut acc, field| match package.remove(field.name) {
             Some(x) => {
-                acc[field.name] = x.clone();
+                acc[field.name] = x;
                 acc
             }
             None => {
-                if field.required {
-                    panic!("missing required field: {}", field.name)
-                }
+                assert!(field.required, "missing required field: {}", field.name);
                 acc
             }
         });
