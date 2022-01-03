@@ -2,101 +2,139 @@ use toml_edit::{table, Item, Table};
 
 struct OrderedField {
     name: &'static str,
-    required: bool,
+    required_always: bool,
+    required_publish: bool,
 }
 
 const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
     OrderedField {
         name: "name",
-        required: true,
+        required_always: true,
+        required_publish: true,
     },
     OrderedField {
         name: "version",
-        required: true,
+        required_always: true,
+        required_publish: true,
     },
     OrderedField {
         name: "edition",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "description",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "documentation",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "homepage",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "repository",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "readme",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "keywords",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "categories",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "license",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "license-file",
-        required: false,
+        required_always: false,
+        required_publish: true,
     },
     OrderedField {
         name: "authors",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "build",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "links",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "exclude",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "include",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "publish",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
     OrderedField {
         name: "workspace",
-        required: false,
+        required_always: false,
+        required_publish: false,
     },
 ];
 
 pub fn sort_package_fields(package: &mut Table) -> Item {
-    let sorted_package = PACKAGE_FIELDS_ORDER
-        .iter()
-        .fold(table(), |mut acc, field| match package.remove(field.name) {
-            Some(x) => {
-                acc[field.name] = x;
-                acc
-            }
-            None => {
-                assert!(field.required, "missing required field: {}", field.name);
-                acc
-            }
-        });
+    let is_publish = if let Some(publish) = package.get("publish") {
+        publish.as_bool().unwrap()
+    } else {
+        true
+    };
+
+    let has_license_or_license_file =
+        package.get("license").is_some() || package.get("license-file").is_some();
+    let sorted_package =
+        PACKAGE_FIELDS_ORDER
+            .iter()
+            .fold(table(), |mut acc, field| match package.remove(field.name) {
+                Some(x)=>{
+                    acc[field.name] = x;
+                    acc
+                }
+                None => {
+                    if is_publish {
+                        if field.name == "license" || field.name == "license-file"  {
+                            assert!(has_license_or_license_file, "one of [`license`, `license-file`] is required when publishing to crates.io");
+                        } else {
+                            assert!(!(field.required_publish || field.required_always), "missing required field: {}", field.name);
+                        }
+                    } else {
+                        assert!(!field.required_always, "missing required field: {}", field.name);
+                    }
+
+                    acc
+                }
+            });
     let sorted_package = package.iter().fold(sorted_package, |mut acc, x| {
         acc[x.0] = x.1.clone();
         acc
@@ -111,6 +149,7 @@ mod util_test {
 
     mod sort_package_fields_test {
         use super::*;
+        use test_case::test_case;
 
         #[test]
         fn orders_all_fields_correctly() {
@@ -167,6 +206,77 @@ mod util_test {
             [package]
             name = "back down"
             "#;
+
+            let mut toml = fields.parse::<Document>().expect("heck");
+
+            let package_fields = toml["package"].as_table_mut().unwrap();
+            toml["package"] = sort_package_fields(package_fields);
+        }
+
+        #[test]
+        fn only_requires_name_and_version_if_publish_false() {
+            let fields = r#"
+            [package]
+            version = "1.0.0"
+            name = "overwhelmed"
+            publish = false
+            "#;
+
+            let mut toml = fields.parse::<Document>().expect("heck");
+
+            let package_fields = toml["package"].as_table_mut().unwrap();
+            toml["package"] = sort_package_fields(package_fields);
+            insta::assert_snapshot!(format!("{}", toml.to_string()));
+        }
+
+        #[test_case("" => panics; "publish missing")]
+        #[test_case("publish = true" => panics; "publish true")]
+        #[test_case(r#"description= "check in""# => panics; "documentation missing")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+        "# => panics; "homepage missing")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+            homepage = "lie cheat steal"
+        "# => panics; "repository missing")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+            homepage = "lie cheat steal"
+            repository = "kill win"
+        "# => panics; "readme missing")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+            homepage = "lie cheat steal"
+            repository = "kill win"
+            readme = "banging on my adversaries"
+        "# => panics; "license")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+            homepage = "lie cheat steal"
+            repository = "kill win"
+            readme = "banging on my adversaries"
+            license = "MIT"
+        "# ; "all present")]
+        #[test_case(r#"
+            description= "shoulda been a dentist"
+            documentation = "mom said it"
+            homepage = "lie cheat steal"
+            repository = "kill win"
+            readme = "banging on my adversaries"
+            license-file = "license.txt"
+        "# ; "all present - license file")]
+        fn requires_more_fields_if_publish_true_or_missing(extra_fields: &str) {
+            let fields = r#"
+            [package]
+            version = "1.0.0"
+            name = "overwhelmed"
+            "#;
+            let fields = format!("{}{}", fields, extra_fields);
 
             let mut toml = fields.parse::<Document>().expect("heck");
 
