@@ -1,14 +1,17 @@
+
 [package]
 name = "cargo-funnel"
 version = "0.4.1"
-authors = ["Tom Pridham <pridham.tom@gmail.com>"]
 edition = "2018"
 description = "cargo subcommand to reorganize and sort your Cargo.toml"
+documentation = "docs.rs/cargo-funnel"
+homepage = "https://github.com/TomPridham/cargo-funnel"
 repository = "https://github.com/TomPridham/cargo-funnel"
 readme = "README.md"
 keywords = ["sort", "toml", "reorganize", "formatter"]
 categories = ["development-tools::cargo-plugins"]
 license = "MIT"
+authors = ["Tom Pridham <pridham.tom@gmail.com>"]
 
 [dependencies]
 cargo_metadata = "0.14.0"
