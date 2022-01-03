@@ -6,7 +6,7 @@ struct OrderedField {
     required_publish: bool,
 }
 
-const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
+const PACKAGE_FIELDS_ORDER: [OrderedField; 27] = [
     OrderedField {
         name: "name",
         required_always: true,
@@ -18,7 +18,17 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required_publish: true,
     },
     OrderedField {
+        name: "authors",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
         name: "edition",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "rust-version",
         required_always: false,
         required_publish: false,
     },
@@ -33,6 +43,11 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required_publish: true,
     },
     OrderedField {
+        name: "readme",
+        required_always: false,
+        required_publish: true,
+    },
+    OrderedField {
         name: "homepage",
         required_always: false,
         required_publish: true,
@@ -43,7 +58,12 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required_publish: true,
     },
     OrderedField {
-        name: "readme",
+        name: "license",
+        required_always: false,
+        required_publish: true,
+    },
+    OrderedField {
+        name: "license-file",
         required_always: false,
         required_publish: true,
     },
@@ -58,17 +78,7 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required_publish: false,
     },
     OrderedField {
-        name: "license",
-        required_always: false,
-        required_publish: true,
-    },
-    OrderedField {
-        name: "license-file",
-        required_always: false,
-        required_publish: true,
-    },
-    OrderedField {
-        name: "authors",
+        name: "workspace",
         required_always: false,
         required_publish: false,
     },
@@ -98,7 +108,37 @@ const PACKAGE_FIELDS_ORDER: [OrderedField; 19] = [
         required_publish: false,
     },
     OrderedField {
-        name: "workspace",
+        name: "metadata",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "default-run",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "autobins",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "autoexamples",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "autotests",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "autobenches",
+        required_always: false,
+        required_publish: false,
+    },
+    OrderedField {
+        name: "resolver",
         required_always: false,
         required_publish: false,
     },
@@ -157,6 +197,14 @@ mod util_test {
             [package]
             workspace = "i don't like you"
             publish = false
+            rust-version = 1.40
+            metadata = []
+            default-run = "oh my god.exe"
+            autobins = false
+            autoexamples = false
+            autotests = false
+            autobenches = false
+            resolver = 2
             include = "out of control"
             exclude = "i don't like youuuuuuu"
             links = ["i don't the things you say"]

@@ -7,21 +7,29 @@ expression: "format!(\"{}\", toml.to_string())"
 [package]
 name = "overwhelmed"
 version = "1.0.0"
+authors = ["out of control", "don't wanna see me lose my mind"]
 edition = "2018"
+rust-version = 1.40
 description = "words come over me, feels like im somebody else"
 documentation = "docs.rs/but im not"
+readme = "README.md"
 homepage = "overwhelmed.com"
 repository = "dont like u .git"
-readme = "README.md"
-keywords = []
-categories = ["can't", "get", "in", "my", "head"]
 license = "MIT"
 license-file = "things u do.txt"
-authors = ["out of control", "don't wanna see me lose my mind"]
+keywords = []
+categories = ["can't", "get", "in", "my", "head"]
+workspace = "i don't like you"
 build = "say it right to my face"
 links = ["i don't the things you say"]
 exclude = "i don't like youuuuuuu"
 include = "out of control"
 publish = false
-workspace = "i don't like you"
+metadata = []
+default-run = "oh my god.exe"
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+resolver = 2
             
