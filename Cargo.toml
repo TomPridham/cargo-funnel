@@ -17,3 +17,4 @@ toml_edit = "0.2.1"
 
 [dev-dependencies]
 insta = "1.7.1"
+test-case = "1.2.1"
